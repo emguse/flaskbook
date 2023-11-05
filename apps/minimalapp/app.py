@@ -8,6 +8,6 @@ def index():
     return "Hello, World!"
 
 
-@app.route("/hello")
-def hello():
-    return "Hello, hello!"
+@app.route("/hello/<string:name>", methods=["GET", "POST"], endpoint="hello-endpoint")
+def hello(name):
+    return f"Hello, {name}!"
