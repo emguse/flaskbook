@@ -1,6 +1,16 @@
-from flask import Flask, render_template, url_for
+from email_validator import validate_email, EmailNotValidError
+from flask import (
+    Flask,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 app = Flask(__name__)
+
+app.config["SECRET_KEY"] = "7uT64T6WJlrzxuAKNCnk4u5gpSe8CGbM"
 
 
 @app.route("/")
@@ -18,10 +28,42 @@ def show_name(name):
     return render_template("index.html", name=name)
 
 
-with app.test_request_context():
-    # /
-    print(url_for("index"))
-    # hello/world
-    print(url_for("hello-endpoint", name="world"))
-    # name/bob?page=1
-    print(url_for("show_name", name="bob", page="1"))
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
+@app.route("/contact/complete", methods=["GET", "POST"])
+def contact_complete():
+    if request.method == "POST":
+        username = request.form["username"]
+        email = request.form["email"]
+        description = request.form["description"]
+        error = None
+
+        if not username:
+            error = "Username is required."
+            flash(error)
+
+        if not email:
+            error = "Email address is required."
+            flash(error)
+
+        if not description:
+            error = "Details is required."
+            flash(error)
+
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            error = "Email address format is invalid."
+            flash(error)
+
+        if error is not None:
+            flash("Please review your input.")
+            return redirect(url_for("contact"))
+        else:
+            flash("Your inquiry has been submitted.")
+            return redirect(url_for("contact_complete"))
+
+    return render_template("contact_complete.html")
