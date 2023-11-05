@@ -39,27 +39,27 @@ def contact_complete():
         username = request.form["username"]
         email = request.form["email"]
         description = request.form["description"]
-        error = None
+        error = False
 
         if not username:
-            error = "Username is required."
-            flash(error)
+            error = True
+            flash("Username is required.")
 
         if not email:
-            error = "Email address is required."
-            flash(error)
+            error = True
+            flash("Email address is required.")
 
         if not description:
-            error = "Details is required."
-            flash(error)
+            error = True
+            flash("Details is required.")
 
         try:
             validate_email(email)
         except EmailNotValidError:
-            error = "Email address format is invalid."
-            flash(error)
+            error = True
+            flash("Email address format is invalid.")
 
-        if error is not None:
+        if error:
             flash("Please review your input.")
             return redirect(url_for("contact"))
         else:
