@@ -4,10 +4,14 @@ import os
 from email_validator import validate_email, EmailNotValidError
 from flask import (
     Flask,
+    current_app,
     flash,
+    g,
+    make_response,
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_mail import Mail, Message
@@ -29,6 +33,14 @@ app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
 mail = Mail(app)
 
 
+ctx = app.app_context()
+ctx.push()
+print(current_app.name)
+
+g.connection = "connection"
+print(g.connection)
+
+
 @app.route("/")
 def index():
     return "Hello, World!"
@@ -46,7 +58,10 @@ def show_name(name):
 
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")
+    response = make_response(render_template("contact.html"))
+    response.set_cookie("flaskbook key", "flaskbook value")
+    session["username"] = "bob"
+    return response
 
 
 @app.route("/contact/complete", methods=["GET", "POST"])
