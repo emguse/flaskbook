@@ -1,3 +1,6 @@
+import logging
+import os
+
 from email_validator import validate_email, EmailNotValidError
 from flask import (
     Flask,
@@ -7,10 +10,23 @@ from flask import (
     request,
     url_for,
 )
+from flask_mail import Mail, Message
+
+# from flask_debugtoolbar import DebugToolbarExtension
+# flask_debugtoolbar is not yet compatible with Flask 3.0.
 
 app = Flask(__name__)
-
-app.config["SECRET_KEY"] = "7uT64T6WJlrzxuAKNCnk4u5gpSe8CGbM"
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+app.logger.setLevel(logging.DEBUG)
+# app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
+# toolbar = DebugToolbarExtension(app)
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS")
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+mail = Mail(app)
 
 
 @app.route("/")
@@ -63,7 +79,26 @@ def contact_complete():
             flash("Please review your input.")
             return redirect(url_for("contact"))
         else:
+            send_email(
+                email,
+                "Thank you for contacting us!",
+                "contact_mail",
+                username=username,
+                description=description,
+            )
             flash("Your inquiry has been submitted.")
             return redirect(url_for("contact_complete"))
 
     return render_template("contact_complete.html")
+
+
+def send_email(to: str, subject: str, template: str, **kwargs):
+    """Send message funcfion
+    to: "Mail to"
+    subject: "Mail subject"
+    template: "Mail template"
+    """
+    msg = Message(subject, recipients=[to])
+    msg.body = render_template(template + ".txt", **kwargs)
+    msg.html = render_template(template + ".html", **kwargs)
+    mail.send(msg)
