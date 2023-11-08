@@ -1,6 +1,44 @@
-from flask import Flask, render_template, url_for
+import logging
+import os
+
+from email_validator import validate_email, EmailNotValidError
+from flask import (
+    Flask,
+    current_app,
+    flash,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from flask_mail import Mail, Message
+
+# from flask_debugtoolbar import DebugToolbarExtension
+# flask_debugtoolbar is not yet compatible with Flask 3.0.
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+app.logger.setLevel(logging.DEBUG)
+# app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
+# toolbar = DebugToolbarExtension(app)
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS")
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+mail = Mail(app)
+
+
+ctx = app.app_context()
+ctx.push()
+print(current_app.name)
+
+g.connection = "connection"
+print(g.connection)
 
 
 @app.route("/")
@@ -18,10 +56,64 @@ def show_name(name):
     return render_template("index.html", name=name)
 
 
-with app.test_request_context():
-    # /
-    print(url_for("index"))
-    # hello/world
-    print(url_for("hello-endpoint", name="world"))
-    # name/bob?page=1
-    print(url_for("show_name", name="bob", page="1"))
+@app.route("/contact")
+def contact():
+    response = make_response(render_template("contact.html"))
+    response.set_cookie("flaskbook key", "flaskbook value")
+    session["username"] = "bob"
+    return response
+
+
+@app.route("/contact/complete", methods=["GET", "POST"])
+def contact_complete():
+    if request.method == "POST":
+        username = request.form["username"]
+        email = request.form["email"]
+        description = request.form["description"]
+        error = False
+
+        if not username:
+            error = True
+            flash("Username is required.")
+
+        if not email:
+            error = True
+            flash("Email address is required.")
+
+        if not description:
+            error = True
+            flash("Details is required.")
+
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            error = True
+            flash("Email address format is invalid.")
+
+        if error:
+            flash("Please review your input.")
+            return redirect(url_for("contact"))
+        else:
+            send_email(
+                email,
+                "Thank you for contacting us!",
+                "contact_mail",
+                username=username,
+                description=description,
+            )
+            flash("Your inquiry has been submitted.")
+            return redirect(url_for("contact_complete"))
+
+    return render_template("contact_complete.html")
+
+
+def send_email(to: str, subject: str, template: str, **kwargs):
+    """Send message funcfion
+    to: "Mail to"
+    subject: "Mail subject"
+    template: "Mail template"
+    """
+    msg = Message(subject, recipients=[to])
+    msg.body = render_template(template + ".txt", **kwargs)
+    msg.html = render_template(template + ".html", **kwargs)
+    mail.send(msg)

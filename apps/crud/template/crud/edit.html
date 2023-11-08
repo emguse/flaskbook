@@ -1,0 +1,36 @@
+{% extends "crud/base.html" %}
+{% block title %}Edit user{% endblock %}
+{% block content %}
+<h2>Edit user</h2>
+
+<form action="{{ url_for('crud.edit_user', user_id=user.id) }}" method="POST" novalidate="novalidate">
+  {{ form.csrf_token }}
+  <p>
+    {{ form.username.label }} {{ form.username(pleceholder="Username",
+    value=user.username) }}
+  </p>
+  {% for error in form.username.errors %}
+  <span style="color: red;">{{ error }}</span>
+  {% endfor %}
+  <p>
+    {{ form.email.label }} {{ form.email(pleceholder="Email adddress",
+    value=user.email) }}
+  </p>
+  {% for error in form.email.errors %}
+  <span style="color: red;">{{ error }}</span>
+  {% endfor %}
+  <p>
+    {{ form.password.label }} {{ form.password(pleceholder="Password",
+    value=user.password) }}
+  </p>
+  {% for error in form.password.errors %}
+  <span style="color: red;">{{ error }}</span>
+  {% endfor %}
+  <p><input type="submit" value="Update" /></p>
+</form>
+
+<form action="{{ url_for('crud.delete_user', user_id=user.id) }}" method="POST">
+  {{ form.csrf_token }}
+  <input type="submit" value="Delete">
+</form>
+{% endblock %}
