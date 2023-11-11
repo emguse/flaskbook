@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 .vscode/
-.local.sqlite
-.apps/images/
+local.sqlite
+apps/images/
