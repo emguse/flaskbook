@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, current_app, send_from_directory
 
 from apps.app import db
 from apps.crud.models import User
@@ -16,3 +16,8 @@ def index():
         .all()
     )
     return render_template("detector/index.html", user_images=user_images)
+
+
+@dt.route("/images/<path:filename>")
+def image_file(filename):
+    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
