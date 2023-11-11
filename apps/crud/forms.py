@@ -4,17 +4,17 @@ from wtforms.validators import DataRequired, Email, length
 
 
 class UserForm(FlaskForm):
-    username = StringField(
+    username: str = StringField(
         "Username",
         validators=[
             DataRequired(message="Username is required."),
             length(max=30, message="Please enter within 30 characters."),
         ],
     )
-    email = StringField(
+    email: str = StringField(
         "Email address",
         validators=[
-            DataRequired(message="Username is required."),
+            DataRequired(message="Email is required."),
             Email(message="Must be in email address format."),
         ],
     )
