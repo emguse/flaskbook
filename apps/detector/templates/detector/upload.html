@@ -6,6 +6,7 @@
   <p>Select upload image</p>
   <form action="{{ url_for('detector.upload_image') }}" method="post" enctype="multipart/form-data"
     novalidate="novalidate">
+    {{ form.csrf_token }}
     <div>
       <label>
         <span> {{ form.image(class="form-control-file") }} </span>
@@ -16,7 +17,7 @@
     {% endfor %}
     <hr>
     <div>
-      <label> {{ from.submit(class="btn btn-primary") }} </label>
+      <label> {{ form.submit(class="btn btn-primary") }} </label>
     </div>
   </form>
 </div>
