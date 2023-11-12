@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 
 .vscode/
+apps/images/
+apps/detector/model.pt
+local.sqlite
