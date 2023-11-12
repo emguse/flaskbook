@@ -43,7 +43,8 @@ def index():
             .filter(UserImageTag.user_image_id == user_image.UserImage.id)
             .all()
         )
-        user_image_tag_dict[user_image, UserImage.id] = user_image_tags
+        user_image_tag_dict[user_image.UserImage.id] = user_image_tags
+    print(user_image_tag_dict)
 
     detector_form = DetectorForm()
     delete_form = DeleteForm()
@@ -187,6 +188,7 @@ def exec_detect(target_image_path):
             c2 = (int(box[2]), int(box[3]))
             cv2 = draw_lines(c1, c2, result_image, line, color)
             cv2 = draw_text(result_image, line, c1, cv2, color, labels, label)
+            tags.append(labels[label])
 
     # Save the result image
     detected_image_file_name = str(uuid.uuid4()) + ".jpg"

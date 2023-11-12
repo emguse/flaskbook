@@ -47,11 +47,11 @@
   </header>
   <section>
     <img src="{{ url_for('detector.image_file',
-     filename=user_image.UserImage.image_path) }}" alt="Upload image">
+     filename=user_image.UserImage.image_path) }}" alt="image">
   </section>
   <footer>
     {% for tag in user_image_tag_dict[user_image.UserImage.id] %}
-    #{{ tag.tag_name }}
+    #{{tag.tag_name }}
     {% endfor %}
   </footer>
 </div>
