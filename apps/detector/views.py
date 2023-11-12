@@ -22,7 +22,7 @@ import uuid
 from apps.app import db
 from apps.crud.models import User
 from apps.detector.models import UserImage, UserImageTag
-from apps.detector.forms import UploadImageForm, DetectorForm
+from apps.detector.forms import UploadImageForm, DetectorForm, DeleteForm
 
 dt = Blueprint("detector", __name__, template_folder="templates")
 
@@ -46,12 +46,14 @@ def index():
         user_image_tag_dict[user_image, UserImage.id] = user_image_tags
 
     detector_form = DetectorForm()
+    delete_form = DeleteForm()
 
     return render_template(
         "detector/index.html",
         user_images=user_images,
         user_image_tag_dict=user_image_tag_dict,
         detector_form=detector_form,
+        delete_form=delete_form,
     )
 
 
@@ -102,6 +104,23 @@ def detect(image_id):
         db.session.rollback()
         current_app.logger.error(e)
         return redirect(url_for("detector.index"))
+
+    return redirect(url_for("detector.index"))
+
+
+@dt.route("/images/delete/<string:image_id>", methods=["POST"])
+@login_required
+def delete_image(image_id):
+    try:
+        db.session.query(UserImageTag).filter(
+            UserImageTag.user_image_id == image_id
+        ).delete()
+        db.session.query(UserImage).filter(UserImage.id == image_id).delete()
+        db.session.commit()
+    except SQLAlchemyError as e:
+        flash("An error occurred while deleting the image.")
+        current_app.logger.error(e)
+        db.session.rollback()
 
     return redirect(url_for("detector.index"))
 
