@@ -45,7 +45,6 @@ def index():
             .all()
         )
         user_image_tag_dict[user_image.UserImage.id] = user_image_tags
-    print(user_image_tag_dict)
 
     detector_form = DetectorForm()
     delete_form = DeleteForm()
@@ -92,7 +91,7 @@ def detect(image_id):
     user_image = db.session.query(UserImage).filter(UserImage.id == image_id).first()
 
     if user_image is None:
-        flash("Target image does not exist")
+        flash("Target image does not exist.")
         return redirect(url_for("detector.index"))
 
     target_image_path = Path(current_app.config["UPLOAD_FOLDER"], user_image.image_path)
