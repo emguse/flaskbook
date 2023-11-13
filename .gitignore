@@ -163,3 +163,5 @@ cython_debug/
 apps/images/
 apps/detector/model.pt
 local.sqlite
+testing.sqlite
+tests/detector/testdata/
