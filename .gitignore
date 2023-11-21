@@ -165,3 +165,8 @@ apps/detector/model.pt
 local.sqlite
 testing.sqlite
 tests/detector/testdata/
+ml-api/images.db
+ml-api/handwriting_pics/
+ml-api/api/migrations/
+ml-api/api/images.db
+ml-api/api/model.pickle
